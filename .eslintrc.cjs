@@ -4,6 +4,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/stylistic-type-checked',
     'prettier',
   ],
   overrides: [
@@ -21,7 +22,11 @@ module.exports = {
         // and coming up with clever typings may break for consumers.
         '@typescript-eslint/no-explicit-any': 'off',
         // We use `require` for loading the `package.json` file.
-        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-var-requires': [
+          'error',
+          { allow: ['/package\\.json$'] },
+        ],
+        '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       },
     },
     // Tests

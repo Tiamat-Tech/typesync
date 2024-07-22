@@ -1,6 +1,28 @@
-import { IPackageSource, IPackageVersionInfo } from './types'
 import fetch from 'npm-registry-fetch'
 import { compare } from 'semver'
+import type { IPackageVersionInfo } from './versioning'
+
+/**
+ * Fetches info about a package.
+ */
+export interface IPackageSource {
+  /**
+   * Fetches package info from an external source.
+   *
+   * @param packageName
+   */
+  fetch(this: void, packageName: string): Promise<IPackageInfo | null>
+}
+
+/**
+ * Interface for the Package Info structure.
+ */
+export interface IPackageInfo {
+  name: string
+  latestVersion: string
+  deprecated: boolean
+  versions: Array<IPackageVersionInfo>
+}
 
 /**
  * Creates a package source.
@@ -11,20 +33,18 @@ export function createPackageSource(): IPackageSource {
      * Fetches info about a package, or `null` if not found.
      */
     fetch: async (name) => {
-      const response = await fetch(encodeURIComponent(name)).catch(
-        (err: any) => {
-          if (err.statusCode === 404) {
-            return null
-          }
+      const response = await fetch(encodeURI(name)).catch((err) => {
+        if (err.statusCode === 404) {
+          return null
+        }
 
-          /* istanbul ignore next */
-          throw err
-        },
-      )
+        /* istanbul ignore next */
+        throw err
+      })
 
       const data = await response?.json()
 
-      if (!data) {
+      if (!data?.versions) {
         return null
       }
 
